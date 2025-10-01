@@ -1135,4 +1135,188 @@ else:
                 "Funding/Financing",
                 "Other"
             ],
-            max_selections
+            max_selections=3,
+            help="Select up to three benefits"
+        )
+    
+        # Show text input if "Other" is selected
+        st.session_state.other_benefit = None
+        if "Other" in st.session_state.partnership_benefits:
+            st.session_state.other_benefit = st.text_input(
+                "Please specify the other benefit:",
+                placeholder="Enter the benefit"
+            )
+    
+        st.session_state.company_dependency = st.radio(
+            "How dependent is your company on its collaboration with a specific company?",
+            options=["Not Dependent", "Somewhat Dependent", "Dependent", "Highly Dependent", "Completely Dependent"],
+            horizontal=True,
+            index=None
+        )
+    
+        st.header("Cost structure")
+        st.write("Now that you have finished examining your company's strategic partners, the next topic is the cost structure.")
+    
+        st.session_state.cost_intensive_components = st.multiselect(
+            "Please now select the three most cost-intensive components of your company:",
+            options=[
+                "Administration, finance and management/control",
+                "Building and maintaining customer relationships",
+                "Building and maintaining partnerships",
+                "Follow-up sales and service activities",
+                "Management and employee development",
+                "Inbound logistics",
+                "Outbound logistics",
+                "Marketing Department",
+                "Sales Department",
+                "Advising and solving clients' unique challenges",
+                "Procurement Department",
+                "Production Department",
+                "R&D (research and development)"
+            ],
+            max_selections=3,
+            help="Select up to three most cost-intensive components"
+        )
+    
+        st.header("Team")
+        st.write("We now want to understand more about the team behind your company!")
+    
+        st.write("Please describe the key people in your company, their positions, and core competencies.")
+        
+        # Initialize session state for team members if not exists
+        if 'team_members' not in st.session_state:
+            st.session_state.team_members = ""
+    
+        # Simple text area for team members
+        st.session_state.team_members = st.text_area(
+            "Team Members",
+            value=st.session_state.team_members,
+            height=200,
+            placeholder="Please describe your team members, their positions, and core competencies..."
+        )
+    
+        # Initialize session state for funding amount if not exists
+        if 'funding_amount' not in st.session_state:
+            st.session_state.funding_amount = None
+    
+        # Create a number input field for the funding amount
+        st.session_state.funding_amount = st.text_input(
+            "If the business plan is used to apply for funding, please specify the amount, that you apply for (in Danish Kroner):",
+            placeholder="e.g., 1000000"
+        )
+    
+        # Only show the funding purpose question if amount is given
+        if st.session_state.funding_amount:           
+            # Initialize session state for funding purpose if not exists
+            if 'funding_purpose' not in st.session_state:
+                st.session_state.funding_purpose = ""
+    
+            # Create a text area for the funding purpose
+            st.session_state.funding_purpose = st.text_area(
+                "Please describe how you plan to use the requested funding:",
+                value=st.session_state.funding_purpose,
+                height=100
+            )
+    
+    if st.button("Generate Business Plan"):
+        with st.spinner("🧠 Generating your business plan..."):
+            try:
+                data = {
+                    "business_name": st.session_state.business_name,
+                        "start_year": st.session_state.start_year,
+                        "business_reason": st.session_state.business_reason,
+                        "mission_vision": st.session_state.mission_vision,
+                        "legal_structure": st.session_state.legal_structure,
+                        "financial_funding": st.session_state.financial_funding,
+                        "business_sector": st.session_state.business_sector,
+                        "raw_materials_type": st.session_state.raw_materials_type,
+                        "industrial_business_type": st.session_state.industrial_business_type,
+                        "services_type": st.session_state.services_type,
+                        "durable_goods_type": st.session_state.durable_goods_type,
+                        "consumer_goods_type": st.session_state.consumer_goods_type,
+                        "healthcare_type": st.session_state.healthcare_type,
+                        "financial_sector_type": st.session_state.financial_sector_type,
+                        "it_sector_type": st.session_state.it_sector_type,
+                        "utilities_type": st.session_state.utilities_type,
+                        "culture_type": st.session_state.culture_type,
+                        "primary_countries": st.session_state.primary_countries,
+                        "product_centralisation": st.session_state.product_centralisation,
+                        "product_range": st.session_state.product_range,
+                        "end_consumer_characteristics": st.session_state.end_consumer_characteristics,
+                        "end_consumer_characteristics_2": st.session_state.end_consumer_characteristics_2,
+                        "product_service_description": st.session_state.product_service_description,
+                        "segment_name": st.session_state.segment_name,
+                        "segment_demographics": st.session_state.segment_demographics,
+                        "segment_characteristics": st.session_state.segment_characteristics,
+                        "customer_count": st.session_state.customer_count,
+                        "problems_faced": st.session_state.problems_faced,
+                        "biggest_competitors": st.session_state.biggest_competitors,
+                        "competition_intensity": st.session_state.competition_intensity,
+                        "price_comparison": st.session_state.price_comparison,
+                        "market_type": st.session_state.market_type,
+                        "competitive_parameters": st.session_state.competitive_parameters,
+                        "value_propositions": st.session_state.value_propositions,
+                        "direct_income": st.session_state.direct_income,
+                        "primary_revenue": st.session_state.primary_revenue,
+                        "one_time_payments": st.session_state.one_time_payments,
+                        "ongoing_payments": st.session_state.ongoing_payments,
+                        "payment_characteristics": st.session_state.payment_characteristics,
+                        "package_price": st.session_state.package_price,
+                        "price_negotiation": st.session_state.price_negotiation,
+                        "fixed_prices": st.session_state.fixed_prices,
+                        "dynamic_prices": st.session_state.dynamic_prices,
+                        "distribution_channels": st.session_state.distribution_channels,
+                        "purchasing_power": st.session_state.purchasing_power,
+                        "product_related_characteristics": st.session_state.product_related_characteristics,
+                        "self_service_availability": st.session_state.self_service_availability,
+                        "online_communities_presence": st.session_state.online_communities_presence,
+                        "development_process_customer_involvement": st.session_state.development_process_customer_involvement,
+                        "after_sale_purchases": st.session_state.after_sale_purchases,
+                        "personal_assistance_offered": st.session_state.personal_assistance_offered,
+                        "similar_products_switch": st.session_state.similar_products_switch,
+                        "general_customer_relation": st.session_state.general_customer_relation,
+                        "material_resources": st.session_state.material_resources,
+                        "intangible_resources": st.session_state.intangible_resources,
+                        "important_activities": st.session_state.important_activities,
+                        "inhouse_activities": st.session_state.inhouse_activities,
+                        "outsourced_activities": st.session_state.outsourced_activities,
+                        "company_statements": st.session_state.company_statements,
+                        "important_strategic_partners": st.session_state.important_strategic_partners,
+                        "partnership_benefits": st.session_state.partnership_benefits,
+                        "other_benefit": st.session_state.other_benefit,
+                        "company_dependency": st.session_state.company_dependency,
+                        "cost_intensive_components": st.session_state.cost_intensive_components,
+                        "team_members": st.session_state.team_members,
+                        "funding_amount": st.session_state.funding_amount,
+                        "funding_purpose": st.session_state.funding_purpose,
+                        "gemini_api_key": st.session_state.gemini_api_key,
+                        "groq_api_key": st.session_state.groq_api_key,
+                }
+    
+                st.write("🔄 Sending data for processing...")
+                #st.write(data)
+    
+                response = requests.post(
+                    "https://business-plan-backend-0xv3.onrender.com/generate_business_plan",
+                    json=data
+                )
+    
+                if response.status_code == 200:
+                    result = response.json()
+                    business_plan_markdown = result["business_plan"]  # Now a full string
+    
+                    # Display full content in one go
+                    st.markdown(business_plan_markdown, unsafe_allow_html=True)
+    
+                    st.success("✅ Business Plan ready!")
+    
+                    st.download_button(
+                        label="Download Business Plan",
+                        data=business_plan_markdown,
+                        file_name="generated_business_plan.md",
+                        mime="text/markdown"
+                    )
+                else:
+                    st.error(f"Error: {response.text}")
+            except Exception as e:
+                st.error(f"Error connecting to the server: {str(e)}")
