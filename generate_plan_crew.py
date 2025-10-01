@@ -37,7 +37,7 @@ class PlanCrewFactory:
 
         # Initialize the LLMs. They will now automatically pick up the keys from the environment.
         self.llm_gemini = LLM(
-            model="gemini/gemini-1.5-pro-latest"
+            model="gemini/gemini-2.5-pro"
         )
         
         self.llm_groq = LLM(
@@ -141,3 +141,4 @@ class PlanCrewFactory:
 
     def refine_plan_task(self, agent, context):
         return Task(config=self.tasks_config['refine_plan'], agent=agent, context=context)
+
