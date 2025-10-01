@@ -22,9 +22,16 @@ class PlanCrewFactory:
         if not groq_api_key:
             raise ValueError("A Groq API key is required.")
 
-        # --- THIS IS THE CRITICAL FIX ---
-        # Set the environment variables that the underlying libraries (litellm, google-generativeai)
-        # are specifically designed to look for. This is the most robust authentication method.
+        # --- DIAGNOSTIC PRINT STATEMENTS ---
+        # This will show up in your Render logs to confirm the backend is receiving the keys.
+        # We print only the last 4 characters for security.
+        print(f"--- DIAGNOSTIC INFO ---")
+        print(f"Received Gemini Key ending in: ...{gemini_api_key[-4:]}")
+        print(f"Received Groq Key ending in:   ...{groq_api_key[-4:]}")
+        print(f"-------------------------")
+        # --- END DIAGNOSTIC ---
+
+        # Set the environment variables that the underlying libraries are designed to look for.
         os.environ['GOOGLE_API_KEY'] = gemini_api_key
         os.environ['GROQ_API_KEY'] = groq_api_key
 
@@ -37,7 +44,7 @@ class PlanCrewFactory:
             model="groq/llama3-70b-8192"
         )
 
-    # --- Methods to create each AGENT ---
+    # --- Methods to create each AGENT (No changes below this line) ---
     def business_designer(self):
         return Agent(
             config=self.agents_config['business_designer'],
