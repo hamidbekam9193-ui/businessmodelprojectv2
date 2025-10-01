@@ -40,17 +40,22 @@ class GeneratePlanCrew():
     agents_config = 'config/agents.yaml'
     tasks_config = 'config/tasks.yaml'
 
+    def __init__(self):
+        self._llm_gemini = None
+        self._llm_groq = None
+        self.gemini_api_key = None
+        self.groq_api_key = None
+
     @property
     def llm_gemini(self):
-        if not hasattr(self, "_llm_gemini"):
-            api_key_gemini = os.environ["GEMINI_API_KEY"]
-            if not api_key_gemini:
-                raise ValueError("Missing GEMINI_API_KEY from environment")
+        if self._llm_gemini is None:
+            if not self.gemini_api_key:
+                raise ValueError("Gemini API key not set")
             import google.generativeai as genai
-            genai.configure(api_key=api_key_gemini)
+            genai.configure(api_key=self.gemini_api_key)
 
             self._llm_gemini = LLM(
-                model="gemini/gemini-2.5-pro-preview-05-06",
+                model="gemini/gemini-1.5-pro-preview-05-06",
                 temperature=0.1,
                 reasoning_effort="high"
             )
@@ -58,12 +63,12 @@ class GeneratePlanCrew():
     
     @property
     def llm_groq(self):
-        if not hasattr(self, "_llm_groq"):
-            api_key_groq = os.environ["GROQ_API_KEY"]
-            if not api_key_groq:
-                raise ValueError("Missing GROQ_API_KEY from environment")
+        if self._llm_groq is None:
+            if not self.groq_api_key:
+                raise ValueError("Groq API key not set")
+            os.environ["GROQ_API_KEY"] = self.groq_api_key
             self._llm_groq = LLM(
-                model="groq/llama-3.3-70b-versatile",
+                model="groq/llama3-70b-8192",
                 temperature=0.1,
                 reasoning_effort="medium"
             )
@@ -71,6 +76,10 @@ class GeneratePlanCrew():
 
     @before_kickoff
     def before_kickoff_function(self, inputs):
+        self.gemini_api_key = inputs.pop('gemini_api_key', None)
+        self.groq_api_key = inputs.pop('groq_api_key', None)
+        if not self.gemini_api_key or not self.groq_api_key:
+            raise ValueError("API keys for Gemini and Groq must be provided.")
         return inputs
 
     @agent
@@ -154,63 +163,72 @@ class GeneratePlanCrew():
     @task
     def create_business_concept(self) -> Task:
         return Task(
-            config=self.tasks_config['create_business_concept']
+            config=self.tasks_config['create_business_concept'],
+            agent=self.business_designer()
         )
 
     @task
     def create_product_design(self) -> Task:
         return Task(
             config=self.tasks_config['create_product_design'],
-            context=[self.create_business_concept()]
+            context=[self.create_business_concept()],
+            agent=self.product_designer()
         )
     
     @task
     def create_market_analysis(self) -> Task:
         return Task(
             config=self.tasks_config['create_market_analysis'],
-            context=[self.create_business_concept(), self.create_product_design()]
+            context=[self.create_business_concept(), self.create_product_design()],
+            agent=self.market_analyst()
         )
     
     @task
     def create_marketing_plan(self) -> Task:
         return Task(
             config=self.tasks_config['create_marketing_plan'],
-            context=[self.create_business_concept(), self.create_product_design(), self.create_market_analysis()]
+            context=[self.create_business_concept(), self.create_product_design(), self.create_market_analysis()],
+            agent=self.marketing_expert()
         )
     
     @task
     def create_operating_plan(self) -> Task:
         return Task(
             config=self.tasks_config['create_operating_plan'],
-            context=[self.create_business_concept(), self.create_product_design(), self.create_market_analysis(), self.create_marketing_plan()]
+            context=[self.create_business_concept(), self.create_product_design(), self.create_market_analysis(), self.create_marketing_plan()],
+            agent=self.operations_specialist()
         )
     
     @task
     def create_financial_plan(self) -> Task:
         return Task(
             config=self.tasks_config['create_financial_plan'],
-            context=[self.create_business_concept(), self.create_product_design(), self.create_market_analysis(), self.create_marketing_plan(), self.create_operating_plan()]
+            context=[self.create_business_concept(), self.create_product_design(), self.create_market_analysis(), self.create_marketing_plan(), self.create_operating_plan()],
+            agent=self.financial_expert()
         )
     
     @task
     def consolidate_plan(self) -> Task:
         return Task(
             config=self.tasks_config['consolidate_plan'],
-            context=[self.create_business_concept(), self.create_product_design(), self.create_market_analysis(), self.create_marketing_plan(), self.create_operating_plan(), self.create_financial_plan()]
+            context=[self.create_business_concept(), self.create_product_design(), self.create_market_analysis(), self.create_marketing_plan(), self.create_operating_plan(), self.create_financial_plan()],
+            agent=self.consolidator()
         )
     
     @task
     def evaluate_plan(self) -> Task:
         return Task(
             config=self.tasks_config['evaluate_plan'],
-            context=[self.consolidate_plan()]
+            context=[self.consolidate_plan()],
+            agent=self.evaluator()
         )
     
     @task
     def refine_plan(self) -> Task:
         return Task(
             config=self.tasks_config['refine_plan'],
-            context=[self.consolidate_plan(), self.evaluate_plan()]
+            context=[self.consolidate_plan(), self.evaluate_plan()],
+            agent=self.refiner()
         )
     
     @crew
@@ -230,4 +248,3 @@ class GeneratePlanCrew():
             return result
         except Exception as e:
             raise Exception(f"Error while running the crew: {e}")
-
