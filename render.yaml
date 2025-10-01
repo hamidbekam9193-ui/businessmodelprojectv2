@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: business-plan-backend
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn backend:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+
+  - type: web
+    name: business-plan-frontend
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "streamlit run frontend.py --server.port $PORT"
