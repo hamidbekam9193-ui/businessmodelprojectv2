@@ -1,7 +1,6 @@
-from crewai import Agent, Task
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_groq import ChatGroq
+import os
 import yaml
+from crewai import Agent, Task, LLM
 
 from tools.CharacterCounterTool import CharacterCounterTool
 
@@ -23,14 +22,19 @@ class PlanCrewFactory:
         if not groq_api_key:
             raise ValueError("A Groq API key is required.")
 
-        # Initialize LLMs immediately with the provided keys
-        self.llm_gemini = ChatGoogleGenerativeAI(
-            model="gemini-1.5-pro-latest",
-            google_api_key=gemini_api_key
+        # Initialize LLMs using CrewAI's native LLM class
+        # This ensures the model name is prefixed with the provider, as LiteLLM expects.
+        self.llm_gemini = LLM(
+            model="gemini/gemini-1.5-pro-latest",
+            config={'api_key': gemini_api_key}
         )
-        self.llm_groq = ChatGroq(
-            api_key=groq_api_key,
-            model_name="llama3-70b-8192"
+        
+        # For Groq, it's often best practice to set the environment variable
+        # as LiteLLM might prioritize it.
+        os.environ['GROQ_API_KEY'] = groq_api_key
+        self.llm_groq = LLM(
+            model="groq/llama3-70b-8192",
+            config={'api_key': groq_api_key}
         )
 
     # --- Methods to create each AGENT ---
