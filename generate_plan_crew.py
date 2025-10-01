@@ -55,7 +55,7 @@ class GeneratePlanCrew():
             genai.configure(api_key=self.gemini_api_key)
 
             self._llm_gemini = LLM(
-                model="gemini/gemini-1.5-pro-latest", # Corrected model name
+                model="gemini/gemini-1.5-pro-latest",
                 temperature=0.1,
                 reasoning_effort="high"
             )
@@ -66,10 +66,9 @@ class GeneratePlanCrew():
         if self._llm_groq is None:
             if not self.groq_api_key:
                 raise ValueError("Groq API key not set")
-            # The groq provider for crewai/litellm needs the API key in the environment
             os.environ["GROQ_API_KEY"] = self.groq_api_key
             self._llm_groq = LLM(
-                model="groq/llama3-70b-8192", # Corrected model name
+                model="groq/llama3-70b-8192",
                 temperature=0.1,
                 reasoning_effort="medium"
             )
@@ -77,18 +76,15 @@ class GeneratePlanCrew():
 
     @before_kickoff
     def before_kickoff_function(self, inputs):
-        # Extract API keys from the inputs passed to the crew
         self.gemini_api_key = inputs.pop('gemini_api_key', None)
         self.groq_api_key = inputs.pop('groq_api_key', None)
         
         if not self.gemini_api_key or not self.groq_api_key:
             raise ValueError("API keys for Gemini and Groq must be provided.")
 
-        # Now that keys are set, instantiate the LLMs using the properties
         gemini_llm = self.llm_gemini
         groq_llm = self.llm_groq
 
-        # Assign the instantiated LLMs to each agent
         self.business_designer().llm = gemini_llm
         self.product_designer().llm = gemini_llm
         self.market_analyst().llm = gemini_llm
@@ -101,7 +97,6 @@ class GeneratePlanCrew():
 
         return inputs
 
-    # --- AGENT DEFINITIONS (WITHOUT LLM) ---
     @agent
     def business_designer(self) -> Agent:
         return Agent(
@@ -171,11 +166,11 @@ class GeneratePlanCrew():
             verbose=True
         )
 
-    # --- TASK DEFINITIONS ---
     @task
     def create_business_concept(self) -> Task:
         return Task(
             config=self.tasks_config['create_business_concept']
+            # The 'agent' parameter is now removed from here
         )
 
     @task
@@ -250,4 +245,6 @@ class GeneratePlanCrew():
             result = self.crew().kickoff(inputs=inputs)
             return result
         except Exception as e:
-            raise Exception(f"Error while running the crew: {e}")
+            # Raising the full exception helps in debugging
+            print(f"Error during crew run: {e}")
+            raise e
