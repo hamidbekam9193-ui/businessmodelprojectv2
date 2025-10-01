@@ -7,6 +7,4 @@ python-dotenv
 google-generativeai
 crewai
 crewai_tools
-langchain-google-genai
-langchain-groq
 PyYAML
