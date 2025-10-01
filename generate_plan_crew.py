@@ -22,19 +22,19 @@ class PlanCrewFactory:
         if not groq_api_key:
             raise ValueError("A Groq API key is required.")
 
-        # Initialize LLMs using CrewAI's native LLM class
-        # This ensures the model name is prefixed with the provider, as LiteLLM expects.
+        # --- THIS IS THE CRITICAL FIX ---
+        # Set the environment variables that the underlying libraries (litellm, google-generativeai)
+        # are specifically designed to look for. This is the most robust authentication method.
+        os.environ['GOOGLE_API_KEY'] = gemini_api_key
+        os.environ['GROQ_API_KEY'] = groq_api_key
+
+        # Initialize the LLMs. They will now automatically pick up the keys from the environment.
         self.llm_gemini = LLM(
-            model="gemini/gemini-1.5-pro-latest",
-            config={'api_key': gemini_api_key}
+            model="gemini/gemini-1.5-pro-latest"
         )
         
-        # For Groq, it's often best practice to set the environment variable
-        # as LiteLLM might prioritize it.
-        os.environ['GROQ_API_KEY'] = groq_api_key
         self.llm_groq = LLM(
-            model="groq/llama3-70b-8192",
-            config={'api_key': groq_api_key}
+            model="groq/llama3-70b-8192"
         )
 
     # --- Methods to create each AGENT ---
