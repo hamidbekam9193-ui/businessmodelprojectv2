@@ -59,7 +59,8 @@ class BusinessPlanFlow(Flow[BusinessPlanState]):
             ],
             tasks=[task1, task2, task3, task4, task5, task6, task7, task8, task9],
             process=Process.sequential,
-            verbose=2
+            # --- THIS IS THE CORRECTED LINE ---
+            verbose=True
         )
 
         # 4. Kickoff the crew with the remaining user inputs
