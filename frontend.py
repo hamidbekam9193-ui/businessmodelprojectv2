@@ -1297,7 +1297,7 @@ else:
                 #st.write(data)
     
                 response = requests.post(
-                    "https://business-plan-backend-0xv3.onrender.com/generate_business_plan",
+                    "https://business-plan-backend-6ocl.onrender.com/generate_business_plan",
                     json=data
                 )
     
@@ -1320,3 +1320,4 @@ else:
                     st.error(f"Error: {response.text}")
             except Exception as e:
                 st.error(f"Error connecting to the server: {str(e)}")
+
