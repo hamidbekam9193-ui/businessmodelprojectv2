@@ -11,8 +11,9 @@ from main import BusinessPlanFlow, BusinessPlanState
 app = FastAPI()
 
 load_dotenv()
-api_key = os.getenv("GEMINI_API_KEY")
-genai.configure(api_key=api_key)
+# We no longer need to configure genai here globally
+# api_key = os.getenv("GEMINI_API_KEY")
+# genai.configure(api_key=api_key)
 
 class BusinessPlanRequest(BaseModel):
     business_name: str
@@ -96,6 +97,11 @@ class BusinessPlanRequest(BaseModel):
     team_members: str
     funding_amount: str
     funding_purpose: str
+
+    # API Keys
+    gemini_api_key: Optional[str] = ""
+    groq_api_key: Optional[str] = ""
+
 
 class BusinessPlanResponse(BaseModel):
     business_plan: str
@@ -185,7 +191,9 @@ def collect_business_plan_inputs(request: BusinessPlanRequest) -> dict:
         "cost_intensive_components": safe_join(request.cost_intensive_components),
         "team_members": request.team_members,
         "funding_amount": request.funding_amount,
-        "funding_purpose": request.funding_purpose
+        "funding_purpose": request.funding_purpose,
+        "gemini_api_key": request.gemini_api_key,
+        "groq_api_key": request.groq_api_key,
     }
 
     return inputs
@@ -219,4 +227,3 @@ async def generate_business_plan(request: BusinessPlanRequest):
     except Exception as e:
         print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
-
